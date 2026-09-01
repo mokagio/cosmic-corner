@@ -38,10 +38,11 @@
   // Systems get their own depth, so a small far one drifts behind a large near one.
   const makeSystem = () => {
     const z = rand(0.2, 1);
-    const radius = rand(38, 132) * (0.55 + z * 0.75);
+    const radius = rand(26, 84) * (0.6 + z * 0.6);
     const planets = Math.round(rand(3, 6));
+    const margin = radius / Math.max(width, 1);
     return {
-      x: Math.random(),
+      x: rand(margin, 1 - margin),
       y: Math.random(),
       z,
       radius,
@@ -69,12 +70,12 @@
     canvas.height = height * scale;
     context.setTransform(scale, 0, 0, scale, 0, 0);
     stars = Array.from(
-      { length: Math.min(180, Math.floor((width * height) / 7500)) },
+      { length: Math.min(420, Math.floor((width * height) / 3200)) },
       makeStar,
     );
     systems = Array.from(
-      { length: Math.max(3, Math.min(7, Math.round(width / 320))) },
-      makeSystem,
+      { length: Math.max(3, Math.min(10, Math.round((width * height) / 220000))) },
+      () => makeSystem(),
     );
   }
 
@@ -109,22 +110,21 @@
       const spin = still.matches ? 0 : time * sys.spin;
       const alpha = 0.3 + sys.z * 0.6;
 
-      // Orbits read as ellipses, which is what makes a flat circle look like a system.
-      context.lineWidth = 1;
-      sys.planets.forEach((p) => {
-        context.strokeStyle = `rgba(${p.color},${alpha * 0.22})`;
-        context.beginPath();
-        context.ellipse(cx, cy, p.orbit, p.orbit * 0.45, 0, 0, Math.PI * 2);
-        context.stroke();
-      });
-
-      const sunSize = 1.6 + sys.z * 2.4;
-      const glow = context.createRadialGradient(cx, cy, 0, cx, cy, sunSize * 5);
-      glow.addColorStop(0, `rgba(${sys.sun},${alpha})`);
+      // A wide soft gradient alone reads as a smudge, so the halo stays tight
+      // and a near-white core does the work of looking like a star.
+      const sunSize = 1.4 + sys.z * 1.9;
+      const glow = context.createRadialGradient(cx, cy, 0, cx, cy, sunSize * 3.4);
+      glow.addColorStop(0, `rgba(${sys.sun},${alpha * 0.5})`);
+      glow.addColorStop(0.45, `rgba(${sys.sun},${alpha * 0.16})`);
       glow.addColorStop(1, `rgba(${sys.sun},0)`);
       context.fillStyle = glow;
       context.beginPath();
-      context.arc(cx, cy, sunSize * 5, 0, Math.PI * 2);
+      context.arc(cx, cy, sunSize * 3.4, 0, Math.PI * 2);
+      context.fill();
+
+      context.fillStyle = `rgba(255,247,236,${Math.min(1, alpha * 1.15)})`;
+      context.beginPath();
+      context.arc(cx, cy, sunSize * 0.75, 0, Math.PI * 2);
       context.fill();
 
       sys.planets.forEach((p) => {
@@ -144,7 +144,7 @@
     if (mode === "parallax") {
       drawStars(time);
     } else if (mode === "orbits") {
-      drawStars(time, 0.6, 0.55);
+      drawStars(time, 0.7, 0.8);
       drawSystems(time);
     }
   }
