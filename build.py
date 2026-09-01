@@ -1,36 +1,56 @@
 #!/usr/bin/env python3
-"""Inline the site into dist/artifact.html for publishing as a Claude Artifact.
+"""Inline one page of the site into dist/ for publishing as a Claude Artifact.
 
-Artifacts are served under a CSP that admits scripts and stylesheets only from a
-short allowlist, and images from nowhere but the page itself — so the plate has
-to travel as a data URI. The publish wrapper supplies the document skeleton, so
-the output carries no doctype/html/head/body tags.
+    ./build.py issues/the-big-bang-was-it-real.html
+
+Artifacts are served under a CSP that admits stylesheets only from a short
+allowlist and images from nowhere but the page itself, so the stylesheet and
+every image have to travel inside the file. The publish wrapper supplies the
+document skeleton, hence no doctype/html/head/body tags in the output.
+
+Cross-page links do not resolve inside an artifact; only a single article page
+is worth publishing this way.
 """
 
 import base64
+import mimetypes
 import pathlib
 import re
+import sys
 
 ROOT = pathlib.Path(__file__).parent
 DIST = ROOT / "dist"
 
-html = (ROOT / "index.html").read_text()
-css = (ROOT / "styles.css").read_text()
-plate = base64.b64encode((ROOT / "assets/globular-cluster.jpg").read_bytes()).decode()
+page = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "index.html")
+html = (ROOT / page).read_text()
 
-css = css.replace(
-    'url("assets/globular-cluster.jpg")',
-    f'url("data:image/jpeg;base64,{plate}")',
+css_href = re.search(r'<link rel="stylesheet" href="((?!https)[^"]+)"', html).group(1)
+css_path = (ROOT / page).parent.joinpath(css_href).resolve()
+css = css_path.read_text()
+
+
+def data_uri(path):
+    kind = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+    return f"data:{kind};base64," + base64.b64encode(path.read_bytes()).decode()
+
+
+# url(...) in the stylesheet resolves against the stylesheet; src=... against the page.
+css = re.sub(
+    r'url\("([^"]+)"\)',
+    lambda m: f'url("{data_uri((css_path.parent / m.group(1)).resolve())}")',
+    css,
+)
+body = re.search(r"<body>(.*)</body>", html, re.S).group(1)
+body = re.sub(
+    r'src="((?!data:|https?:)[^"]+)"',
+    lambda m: f'src="{data_uri(((ROOT / page).parent / m.group(1)).resolve())}"',
+    body,
 )
 
-body = re.search(r"<body>(.*)</body>", html, re.S).group(1)
 title = re.search(r"<title>(.*?)</title>", html, re.S).group(1)
 fonts = re.search(r'<link rel="stylesheet" href="https://fonts\.googleapis[^>]*>', html).group(0)
 
 DIST.mkdir(exist_ok=True)
-(DIST / "artifact.html").write_text(
-    f"<title>{title}</title>\n{fonts}\n<style>\n{css}\n</style>\n{body}"
-)
-
-size = (DIST / "artifact.html").stat().st_size
-print(f"dist/artifact.html — {size / 1024:.0f} KB")
+out = DIST / (page.stem + ".html")
+out.write_text(f"<title>{title}</title>\n{fonts}\n<style>\n{css}\n</style>\n{body}")
+print(f"{out.relative_to(ROOT)} — {out.stat().st_size / 1024:.0f} KB")
