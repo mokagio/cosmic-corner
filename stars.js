@@ -24,14 +24,24 @@
   let stars = [];
   let systems = [];
 
-  const rand = (lo, hi) => lo + Math.random() * (hi - lo);
-  const pick = (list) => list[Math.floor(Math.random() * list.length)];
+  // Fixed seed: a random field changes on every reload, so no two screenshots
+  // are comparable and there is no way to tell a tweak from the shuffle.
+  const SEED = 20260901;
+  const mulberry32 = (a) => () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const random = mulberry32(SEED);
+  const rand = (lo, hi) => lo + random() * (hi - lo);
+  const pick = (list) => list[Math.floor(random() * list.length)];
 
   const makeStar = () => ({
-    x: Math.random(),
-    y: Math.random(),
-    z: 0.15 + Math.random() * 0.85,
-    phase: Math.random() * Math.PI * 2,
+    x: random(),
+    y: random(),
+    z: 0.15 + random() * 0.85,
+    phase: random() * Math.PI * 2,
     color: pick(PALETTE),
   });
 
@@ -40,27 +50,29 @@
     const z = rand(0.2, 1);
     const radius = rand(26, 84) * (0.6 + z * 0.6);
     const planets = Math.round(rand(3, 6));
-    const margin = radius / Math.max(width, 1);
     return {
-      x: rand(margin, 1 - margin),
+      x: random(),
       y: Math.random(),
       z,
       radius,
       sun: pick(SUNS),
-      spin: rand(0.00006, 0.00028) * (Math.random() < 0.35 ? -1 : 1),
+      spin: rand(0.00006, 0.00028) * (random() < 0.35 ? -1 : 1),
       planets: Array.from({ length: planets }, (_, i) => {
         const orbit = radius * (0.32 + (0.68 * (i + 1)) / planets);
         return {
           orbit,
           // Inner planets run faster, the way a real system does.
           rate: Math.pow(radius / orbit, 1.5),
-          phase: Math.random() * Math.PI * 2,
+          phase: random() * Math.PI * 2,
           size: rand(0.9, 2.1),
           color: pick(PALETTE),
         };
       }),
     };
   };
+
+  const STAR_POOL = Array.from({ length: 900 }, makeStar);
+  const SYSTEM_POOL = Array.from({ length: 12 }, () => makeSystem());
 
   function resize() {
     const scale = Math.min(devicePixelRatio || 1, 2);
@@ -69,13 +81,13 @@
     canvas.width = width * scale;
     canvas.height = height * scale;
     context.setTransform(scale, 0, 0, scale, 0, 0);
-    stars = Array.from(
-      { length: Math.min(420, Math.floor((width * height) / 3200)) },
-      makeStar,
+    stars = STAR_POOL.slice(
+      0,
+      Math.min(STAR_POOL.length, Math.round((width * height) / 1500)),
     );
-    systems = Array.from(
-      { length: Math.max(3, Math.min(10, Math.round((width * height) / 220000))) },
-      () => makeSystem(),
+    systems = SYSTEM_POOL.slice(
+      0,
+      Math.max(3, Math.min(SYSTEM_POOL.length, Math.round((width * height) / 170000))),
     );
   }
 
@@ -102,7 +114,9 @@
   function drawSystems(time) {
     systems.forEach((sys) => {
       const layer = sys.z ** 2;
-      const cx = sys.x * width + (pointer.x - 0.5) * 130 * layer;
+      // Inset by the system's own radius so it never leaves the frame sideways.
+      const m = Math.min(0.45, sys.radius / width);
+      const cx = (m + sys.x * (1 - 2 * m)) * width + (pointer.x - 0.5) * 130 * layer;
       const cy = wrap(
         sys.y * height + (pointer.y - 0.5) * 84 * layer - scroll.y * 0.11 * layer,
         height + sys.radius * 2,
