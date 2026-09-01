@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap">
 <link rel="stylesheet" href="styles.css">
-<script>try{var t=localStorage.getItem("cc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("cc-theme")||"window"}catch(e){document.documentElement.dataset.theme="window"}</script>
 </head>
 <body>
 

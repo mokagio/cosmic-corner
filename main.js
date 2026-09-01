@@ -7,7 +7,7 @@
     'radial-gradient(1px 1px at 44% 78%, #b7a3dd, transparent),' +
     'radial-gradient(1px 1px at 80% 22%, #cd9cd5, transparent),' +
     `linear-gradient(${ground}, ${ground})`;
-  const DEFAULT = "nebula";
+  const DEFAULT = "window";
 
   // `veil` is only the swatch preview — the real veil lives in styles.css.
   const GROUPS = [
