@@ -227,12 +227,8 @@ a { color: inherit; }
   color: var(--head);
 }
 
-.issue__title a {
-  text-decoration-color: var(--hair);
-  text-underline-offset: 0.22em;
-}
-
-.issue__title a:hover { text-decoration-color: currentColor; }
+.issue__title a { text-decoration: none; }
+.issue__title a:hover { color: var(--paper); }
 
 
 /* ---------- Article ---------- */
