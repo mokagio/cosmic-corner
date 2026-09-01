@@ -11,7 +11,7 @@
   /* The reading sheet: how much of the plate survives under the text */
   --sheet-bg:     rgba(8, 7, 16, 0.42);
   --sheet-filter: blur(26px) saturate(0.55) brightness(0.55);
-  --sheet-max:    46rem;
+  --sheet-max: 52.9rem;
   --sheet-inset:  0rem;
   --sheet-radius: 0;
   --sheet-border: 1px solid var(--hair);
@@ -52,7 +52,7 @@
 :root[data-theme="slate"] {
   --sheet-bg: rgba(18, 22, 30, 0.9);
   --sheet-filter: blur(14px) saturate(0.4) brightness(0.4);
-  --sheet-max: 38rem;
+  --sheet-max: 43.7rem;
   --paper: #e4e8ef;
   --dim: #a9b0bf;
   --hair: rgba(200, 215, 240, 0.15);
@@ -102,7 +102,7 @@
 :root[data-theme="window"] {
   --sheet-bg: rgba(8, 7, 16, 0.52);
   --sheet-filter: blur(20px) saturate(0.7) brightness(0.5);
-  --sheet-max: 40rem;
+  --sheet-max: 46rem;
   --sheet-inset: 1.25rem;
   --sheet-radius: 4px;
   --dim: #dcd9e8;
@@ -113,7 +113,7 @@
 :root[data-theme="porthole"] {
   --sheet-bg: rgba(8, 7, 16, 0.46);
   --sheet-filter: blur(16px) saturate(0.85) brightness(0.6);
-  --sheet-max: 36rem;
+  --sheet-max: 41.4rem;
   --sheet-inset: 2rem;
   --sheet-radius: 14px;
   --paper: #f6f5fb;
@@ -126,7 +126,7 @@
 :root[data-theme="frameless"] {
   --sheet-bg: transparent;
   --sheet-filter: none;
-  --sheet-max: 40rem;
+  --sheet-max: 46rem;
   --sheet-inset: 1rem;
   --sheet-border: 0;
   --paper: #ffffff;
