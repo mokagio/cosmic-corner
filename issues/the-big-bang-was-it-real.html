@@ -9,10 +9,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap">
 <link rel="stylesheet" href="../styles.css">
+<script>try{var t=localStorage.getItem("cc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
 
 <div class="sky" aria-hidden="true"></div>
+
+<div class="picker">
+  <button class="picker__btn" type="button" aria-expanded="false" aria-controls="theme-panel">Theme</button>
+  <div class="picker__panel" id="theme-panel" hidden>
+    <ul class="picker__list"></ul>
+  </div>
+</div>
 
 <main class="sheet">
   <a class="back" href="../">&larr; Cosmic Corner e-magazine</a>
@@ -50,6 +58,8 @@
     <p>Cosmic Corner Science Issue is a production of Cosmic Corner International. Copy Rights 2020 apply Globally.</p>
   </footer>
 </main>
+
+<script src="../main.js"></script>
 
 </body>
 </html>
