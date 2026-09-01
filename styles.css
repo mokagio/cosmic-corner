@@ -5,6 +5,7 @@
 
 :root {
   /* The plate behind everything */
+  --ground: #06060c;
   --plate-filter: none;
 
   /* The reading sheet: how much of the plate survives under the text */
@@ -135,6 +136,36 @@
   --plate-filter: brightness(0.28) saturate(1.1);
 }
 
+/* ---------- 11. Deep Field — canvas starfield, parallax on scroll ---------- */
+:root[data-theme="deepfield"] {
+  --ground: #0f0e24;
+  --sheet-bg: rgba(15, 14, 38, 0.42);
+  --sheet-filter: blur(6px) brightness(0.85);
+  --paper: #ecebf6;
+  --dim: #c3bfd8;
+  --hair: rgba(183, 163, 221, 0.2);
+}
+
+/* ---------- 12. Orbits — spinning systems at different depths ---------- */
+:root[data-theme="orbits"] {
+  --ground: #0a0a1e;
+  --sheet-bg: rgba(10, 10, 30, 0.44);
+  --sheet-filter: blur(6px) brightness(0.85);
+  --paper: #eeecf7;
+  --dim: #c6c2da;
+  --hair: rgba(205, 156, 213, 0.2);
+}
+
+/* ---------- 13. Quiet Sky — pure CSS, no canvas and no script ---------- */
+:root[data-theme="quietsky"] {
+  --ground: #080a18;
+  --sheet-bg: rgba(8, 10, 26, 0.4);
+  --sheet-filter: blur(6px) brightness(0.85);
+  --paper: #eceaf3;
+  --dim: #c0bdd0;
+  --hair: rgba(190, 200, 235, 0.18);
+}
+
 /* ============================================================
    Base
    ============================================================ */
@@ -143,7 +174,7 @@
 
 body {
   margin: 0;
-  background: #06060c;
+  background: var(--ground);
   color: var(--paper);
   font-family: var(--serif);
   font-size: var(--body-size);
@@ -163,7 +194,7 @@ a { color: inherit; }
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: #06060c url("assets/globular-cluster.jpg") center / cover no-repeat;
+  background: var(--ground) url("assets/globular-cluster.jpg") center / cover no-repeat;
   filter: var(--plate-filter);
 }
 
@@ -186,6 +217,78 @@ a { color: inherit; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .sheet { background: rgba(8, 7, 16, 0.94); }
   :root[data-theme="daylight"] .sheet { background: rgba(247, 245, 239, 0.97); }
+}
+
+/* ---------- Generated skies ---------- */
+
+#cosmic,
+.cssfield { display: none; }
+
+#cosmic,
+.cssfield {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+:root[data-theme="deepfield"] .sky,
+:root[data-theme="orbits"] .sky,
+:root[data-theme="quietsky"] .sky { display: none; }
+
+:root[data-theme="deepfield"] #cosmic,
+:root[data-theme="orbits"] #cosmic { display: block; }
+
+:root[data-theme="quietsky"] .cssfield { display: block; }
+
+/* Three tiled gradient fields. Each layer drifts by exactly one tile, so the
+   loop is seamless, and the differing tile sizes and durations read as depth. */
+.cssfield span {
+  position: absolute;
+  inset: -30% 0;
+  display: block;
+  will-change: transform;
+}
+
+.cssfield span:nth-child(1) {
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(200, 212, 250, 0.5), transparent),
+    radial-gradient(1px 1px at 47% 61%, rgba(214, 200, 245, 0.45), transparent),
+    radial-gradient(1px 1px at 78% 29%, rgba(190, 205, 245, 0.5), transparent),
+    radial-gradient(1px 1px at 31% 84%, rgba(205, 195, 240, 0.4), transparent),
+    radial-gradient(1px 1px at 66% 92%, rgba(198, 210, 250, 0.45), transparent),
+    radial-gradient(1px 1px at 89% 74%, rgba(210, 198, 244, 0.4), transparent);
+  background-size: 260px 260px;
+  animation: drift-far 240s linear infinite;
+}
+
+.cssfield span:nth-child(2) {
+  background-image:
+    radial-gradient(1.4px 1.4px at 23% 37%, rgba(214, 224, 255, 0.7), transparent),
+    radial-gradient(1.4px 1.4px at 58% 12%, rgba(226, 206, 248, 0.65), transparent),
+    radial-gradient(1.4px 1.4px at 84% 55%, rgba(205, 218, 255, 0.7), transparent),
+    radial-gradient(1.4px 1.4px at 39% 79%, rgba(232, 212, 250, 0.6), transparent),
+    radial-gradient(1.4px 1.4px at 8% 66%, rgba(210, 220, 255, 0.6), transparent);
+  background-size: 380px 380px;
+  animation: drift-mid 170s linear infinite;
+}
+
+.cssfield span:nth-child(3) {
+  background-image:
+    radial-gradient(2px 2px at 17% 44%, rgba(235, 240, 255, 0.9), transparent),
+    radial-gradient(2px 2px at 71% 22%, rgba(245, 226, 255, 0.85), transparent),
+    radial-gradient(2px 2px at 44% 88%, rgba(228, 238, 255, 0.9), transparent),
+    radial-gradient(2px 2px at 92% 68%, rgba(240, 228, 252, 0.8), transparent);
+  background-size: 520px 520px;
+  animation: drift-near 120s linear infinite;
+}
+
+@keyframes drift-far  { to { transform: translate3d(0, -260px, 0); } }
+@keyframes drift-mid  { to { transform: translate3d(0, -380px, 0); } }
+@keyframes drift-near { to { transform: translate3d(0, -520px, 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cssfield span { animation: none; }
 }
 
 /* ---------- Masthead ---------- */

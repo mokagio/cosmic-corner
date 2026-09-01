@@ -1,5 +1,12 @@
 (() => {
   const KEY = "cc-theme";
+
+  const STARS = (ground) =>
+    'radial-gradient(1px 1px at 26% 30%, #cbd3f2, transparent),' +
+    'radial-gradient(1.6px 1.6px at 63% 58%, #f2ecff, transparent),' +
+    'radial-gradient(1px 1px at 44% 78%, #b7a3dd, transparent),' +
+    'radial-gradient(1px 1px at 80% 22%, #cd9cd5, transparent),' +
+    `linear-gradient(${ground}, ${ground})`;
   const DEFAULT = "nebula";
 
   // `veil` is only the swatch preview — the real veil lives in styles.css.
@@ -27,6 +34,14 @@
         { id: "window",    name: "Window",    note: "Inset column. Stars frame it at any width.", veil: "rgba(8,7,16,0.5)" },
         { id: "porthole",  name: "Porthole",  note: "Thin veil, rounded. More plate.",            veil: "rgba(8,7,16,0.36)" },
         { id: "frameless", name: "Frameless", note: "No sheet. Most plate, least legible.",       veil: "rgba(8,7,16,0.1)" },
+      ],
+    },
+    {
+      label: "Generated",
+      themes: [
+        { id: "deepfield", name: "Deep Field", note: "Drawn stars, parallax on scroll.", bg: STARS("#0f0e24") },
+        { id: "orbits",    name: "Orbits",     note: "Solar systems that spin and drift.", bg: STARS("#0a0a1e") },
+        { id: "quietsky",  name: "Quiet Sky",  note: "Pure CSS. No canvas, no script.",  bg: STARS("#080a18") },
       ],
     },
   ];
@@ -57,6 +72,7 @@
     current = id;
     document.documentElement.dataset.theme = id;
     store.set(id);
+    dispatchEvent(new CustomEvent("cc:theme", { detail: id }));
     list.querySelectorAll(".picker__opt").forEach((b) => {
       b.setAttribute("aria-pressed", String(b.dataset.themeId === id));
     });
@@ -81,7 +97,7 @@
       opt.querySelector(".picker__name").textContent = theme.name;
       opt.querySelector(".picker__note").textContent = theme.note;
       opt.querySelector(".picker__swatch").style.backgroundImage =
-        `linear-gradient(${theme.veil}, ${theme.veil}), url("${plateUrl}")`;
+        theme.bg || `linear-gradient(${theme.veil}, ${theme.veil}), url("${plateUrl}")`;
       opt.addEventListener("click", () => apply(theme.id));
       item.append(opt);
       list.append(item);
