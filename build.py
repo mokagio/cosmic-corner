@@ -41,6 +41,13 @@ css = re.sub(
     css,
 )
 body = re.search(r"<body>(.*)</body>", html, re.S).group(1)
+# The picker's script has to travel inside the file too.
+body = re.sub(
+    r'<script src="([^"]+)"></script>',
+    lambda m: "<script>\n" + ((ROOT / page).parent / m.group(1)).resolve().read_text() + "\n</script>",
+    body,
+)
+
 body = re.sub(
     r'src="((?!data:|https?:)[^"]+)"',
     lambda m: f'src="{data_uri(((ROOT / page).parent / m.group(1)).resolve())}"',
