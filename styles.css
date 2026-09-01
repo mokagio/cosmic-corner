@@ -257,9 +257,19 @@ a { color: inherit; }
     radial-gradient(1px 1px at 78% 29%, rgba(190, 205, 245, 0.5), transparent),
     radial-gradient(1px 1px at 31% 84%, rgba(205, 195, 240, 0.4), transparent),
     radial-gradient(1px 1px at 66% 92%, rgba(198, 210, 250, 0.45), transparent),
-    radial-gradient(1px 1px at 89% 74%, rgba(210, 198, 244, 0.4), transparent);
-  background-size: 260px 260px;
-  animation: drift-far 240s linear infinite;
+    radial-gradient(1px 1px at 89% 74%, rgba(210, 198, 244, 0.4), transparent),
+    radial-gradient(1px 1px at 4% 52%, rgba(196, 208, 248, 0.45), transparent),
+    radial-gradient(1px 1px at 24% 41%, rgba(212, 198, 243, 0.4), transparent),
+    radial-gradient(1px 1px at 38% 7%, rgba(194, 207, 247, 0.5), transparent),
+    radial-gradient(1px 1px at 55% 33%, rgba(208, 196, 241, 0.4), transparent),
+    radial-gradient(1px 1px at 61% 71%, rgba(200, 213, 250, 0.45), transparent),
+    radial-gradient(1px 1px at 72% 51%, rgba(206, 197, 242, 0.4), transparent),
+    radial-gradient(1px 1px at 83% 13%, rgba(198, 210, 248, 0.45), transparent),
+    radial-gradient(1px 1px at 95% 38%, rgba(210, 199, 244, 0.4), transparent),
+    radial-gradient(1px 1px at 17% 66%, rgba(202, 212, 249, 0.45), transparent),
+    radial-gradient(1px 1px at 44% 95%, rgba(207, 198, 242, 0.4), transparent);
+  background-size: 220px 220px;
+  animation: drift-far 220s linear infinite;
 }
 
 .cssfield span:nth-child(2) {
@@ -268,9 +278,14 @@ a { color: inherit; }
     radial-gradient(1.4px 1.4px at 58% 12%, rgba(226, 206, 248, 0.65), transparent),
     radial-gradient(1.4px 1.4px at 84% 55%, rgba(205, 218, 255, 0.7), transparent),
     radial-gradient(1.4px 1.4px at 39% 79%, rgba(232, 212, 250, 0.6), transparent),
-    radial-gradient(1.4px 1.4px at 8% 66%, rgba(210, 220, 255, 0.6), transparent);
-  background-size: 380px 380px;
-  animation: drift-mid 170s linear infinite;
+    radial-gradient(1.4px 1.4px at 8% 66%, rgba(210, 220, 255, 0.6), transparent),
+    radial-gradient(1.4px 1.4px at 68% 88%, rgba(219, 209, 249, 0.65), transparent),
+    radial-gradient(1.4px 1.4px at 14% 21%, rgba(208, 219, 255, 0.6), transparent),
+    radial-gradient(1.4px 1.4px at 46% 52%, rgba(228, 210, 250, 0.65), transparent),
+    radial-gradient(1.4px 1.4px at 92% 27%, rgba(206, 218, 255, 0.6), transparent),
+    radial-gradient(1.4px 1.4px at 33% 6%, rgba(224, 208, 248, 0.6), transparent);
+  background-size: 310px 310px;
+  animation: drift-mid 150s linear infinite;
 }
 
 .cssfield span:nth-child(3) {
@@ -278,14 +293,17 @@ a { color: inherit; }
     radial-gradient(2px 2px at 17% 44%, rgba(235, 240, 255, 0.9), transparent),
     radial-gradient(2px 2px at 71% 22%, rgba(245, 226, 255, 0.85), transparent),
     radial-gradient(2px 2px at 44% 88%, rgba(228, 238, 255, 0.9), transparent),
-    radial-gradient(2px 2px at 92% 68%, rgba(240, 228, 252, 0.8), transparent);
-  background-size: 520px 520px;
-  animation: drift-near 120s linear infinite;
+    radial-gradient(2px 2px at 92% 68%, rgba(240, 228, 252, 0.8), transparent),
+    radial-gradient(2px 2px at 29% 14%, rgba(232, 239, 255, 0.85), transparent),
+    radial-gradient(2px 2px at 58% 61%, rgba(243, 228, 253, 0.8), transparent),
+    radial-gradient(2px 2px at 8% 79%, rgba(230, 238, 255, 0.85), transparent);
+  background-size: 420px 420px;
+  animation: drift-near 110s linear infinite;
 }
 
-@keyframes drift-far  { to { transform: translate3d(0, -260px, 0); } }
-@keyframes drift-mid  { to { transform: translate3d(0, -380px, 0); } }
-@keyframes drift-near { to { transform: translate3d(0, -520px, 0); } }
+@keyframes drift-far  { to { transform: translate3d(0, -220px, 0); } }
+@keyframes drift-mid  { to { transform: translate3d(0, -310px, 0); } }
+@keyframes drift-near { to { transform: translate3d(0, -420px, 0); } }
 
 @media (prefers-reduced-motion: reduce) {
   .cssfield span { animation: none; }
