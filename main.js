@@ -40,7 +40,6 @@
       label: "Generated",
       themes: [
         { id: "deepfield", name: "Deep Field", note: "Drawn stars, parallax on scroll.", bg: STARS("#0f0e24") },
-        { id: "orbits",    name: "Orbits",     note: "Solar systems that spin and drift.", bg: STARS("#0a0a1e") },
         { id: "quietsky",  name: "Quiet Sky",  note: "Pure CSS. No canvas, no script.",  bg: STARS("#080a18") },
       ],
     },

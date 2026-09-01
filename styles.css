@@ -146,17 +146,7 @@
   --hair: rgba(183, 163, 221, 0.2);
 }
 
-/* ---------- 12. Orbits — spinning systems at different depths ---------- */
-:root[data-theme="orbits"] {
-  --ground: #0a0a1e;
-  --sheet-bg: rgba(10, 10, 30, 0.44);
-  --sheet-filter: blur(6px) brightness(0.85);
-  --paper: #eeecf7;
-  --dim: #c6c2da;
-  --hair: rgba(205, 156, 213, 0.2);
-}
-
-/* ---------- 13. Quiet Sky — pure CSS, no canvas and no script ---------- */
+/* ---------- 12. Quiet Sky — pure CSS, no canvas and no script ---------- */
 :root[data-theme="quietsky"] {
   --ground: #080a18;
   --sheet-bg: rgba(8, 10, 26, 0.4);
@@ -233,11 +223,9 @@ a { color: inherit; }
 }
 
 :root[data-theme="deepfield"] .sky,
-:root[data-theme="orbits"] .sky,
 :root[data-theme="quietsky"] .sky { display: none; }
 
-:root[data-theme="deepfield"] #cosmic,
-:root[data-theme="orbits"] #cosmic { display: block; }
+:root[data-theme="deepfield"] #cosmic { display: block; }
 
 :root[data-theme="quietsky"] .cssfield { display: block; }
 

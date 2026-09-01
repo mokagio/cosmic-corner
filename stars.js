@@ -1,9 +1,9 @@
-/* Canvas skies for the generated themes.
+/* The Deep Field sky.
  *
- * The parallax field is the one running on the David Deutsch anthology: depth
- * is z squared, so far stars barely move while near ones swing; scroll and
- * pointer are both eased rather than tracked, which is what stops the field
- * feeling nailed to the cursor.
+ * This is the field running on the David Deutsch anthology: depth is z
+ * squared, so far stars barely move while near ones swing; scroll and pointer
+ * are both eased rather than tracked, which is what stops the field feeling
+ * nailed to the cursor.
  */
 (() => {
   const canvas = document.getElementById("cosmic");
@@ -12,17 +12,15 @@
   const context = canvas.getContext("2d");
   const still = matchMedia("(prefers-reduced-motion: reduce)");
   const PALETTE = ["152,173,231", "183,163,221", "205,156,213", "173,170,210"];
-  const SUNS = ["255,214,170", "255,190,150", "230,205,255"];
-  const MODE_FOR = { deepfield: "parallax", orbits: "orbits" };
+  const THEME = "deepfield";
 
   const pointer = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 };
   const scroll = { y: scrollY, ty: scrollY };
   let width = 0;
   let height = 0;
-  let mode = null;
+  let live = false;
   let running = 0;
   let stars = [];
-  let systems = [];
 
   // Fixed seed: a random field changes on every reload, so no two screenshots
   // are comparable and there is no way to tell a tweak from the shuffle.
@@ -34,45 +32,14 @@
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
   const random = mulberry32(SEED);
-  const rand = (lo, hi) => lo + random() * (hi - lo);
-  const pick = (list) => list[Math.floor(random() * list.length)];
 
-  const makeStar = () => ({
+  const STAR_POOL = Array.from({ length: 900 }, () => ({
     x: random(),
     y: random(),
     z: 0.15 + random() * 0.85,
     phase: random() * Math.PI * 2,
-    color: pick(PALETTE),
-  });
-
-  // Systems get their own depth, so a small far one drifts behind a large near one.
-  const makeSystem = () => {
-    const z = rand(0.2, 1);
-    const radius = rand(26, 84) * (0.6 + z * 0.6);
-    const planets = Math.round(rand(3, 6));
-    return {
-      x: random(),
-      y: Math.random(),
-      z,
-      radius,
-      sun: pick(SUNS),
-      spin: rand(0.00006, 0.00028) * (random() < 0.35 ? -1 : 1),
-      planets: Array.from({ length: planets }, (_, i) => {
-        const orbit = radius * (0.32 + (0.68 * (i + 1)) / planets);
-        return {
-          orbit,
-          // Inner planets run faster, the way a real system does.
-          rate: Math.pow(radius / orbit, 1.5),
-          phase: random() * Math.PI * 2,
-          size: rand(0.9, 2.1),
-          color: pick(PALETTE),
-        };
-      }),
-    };
-  };
-
-  const STAR_POOL = Array.from({ length: 900 }, makeStar);
-  const SYSTEM_POOL = Array.from({ length: 12 }, () => makeSystem());
+    color: PALETTE[Math.floor(random() * PALETTE.length)],
+  }));
 
   function resize() {
     const scale = Math.min(devicePixelRatio || 1, 2);
@@ -81,86 +48,30 @@
     canvas.width = width * scale;
     canvas.height = height * scale;
     context.setTransform(scale, 0, 0, scale, 0, 0);
+    // Slicing a fixed pool keeps the sky steady across a resize.
     stars = STAR_POOL.slice(
       0,
       Math.min(STAR_POOL.length, Math.round((width * height) / 1500)),
-    );
-    systems = SYSTEM_POOL.slice(
-      0,
-      Math.max(3, Math.min(SYSTEM_POOL.length, Math.round((width * height) / 170000))),
     );
   }
 
   const wrap = (v, max) => ((v % max) + max) % max;
 
-  function drawStars(time, depthScale = 1, alphaScale = 1) {
+  function draw(time) {
+    context.clearRect(0, 0, width, height);
     stars.forEach((star) => {
       const layer = star.z ** 2;
       const twinkle = still.matches ? 0 : Math.sin(time / 2400 + star.phase) * 0.07;
-      const x = star.x * width + (pointer.x - 0.5) * 105 * layer * depthScale;
+      const x = star.x * width + (pointer.x - 0.5) * 105 * layer;
       const y = wrap(
-        star.y * height +
-          (pointer.y - 0.5) * 68 * layer * depthScale -
-          scroll.y * 0.075 * layer * depthScale,
+        star.y * height + (pointer.y - 0.5) * 68 * layer - scroll.y * 0.075 * layer,
         height,
       );
-      context.fillStyle = `rgba(${star.color},${(0.14 + star.z * 0.4 + twinkle) * alphaScale})`;
+      context.fillStyle = `rgba(${star.color},${0.14 + star.z * 0.4 + twinkle})`;
       context.beginPath();
       context.arc(x, y, star.z * (1.25 + 0.7 * layer), 0, Math.PI * 2);
       context.fill();
     });
-  }
-
-  function drawSystems(time) {
-    systems.forEach((sys) => {
-      const layer = sys.z ** 2;
-      // Inset by the system's own radius so it never leaves the frame sideways.
-      const m = Math.min(0.45, sys.radius / width);
-      const cx = (m + sys.x * (1 - 2 * m)) * width + (pointer.x - 0.5) * 130 * layer;
-      const cy = wrap(
-        sys.y * height + (pointer.y - 0.5) * 84 * layer - scroll.y * 0.11 * layer,
-        height + sys.radius * 2,
-      ) - sys.radius;
-      const spin = still.matches ? 0 : time * sys.spin;
-      const alpha = 0.3 + sys.z * 0.6;
-
-      // A wide soft gradient alone reads as a smudge, so the halo stays tight
-      // and a near-white core does the work of looking like a star.
-      const sunSize = 1.4 + sys.z * 1.9;
-      const glow = context.createRadialGradient(cx, cy, 0, cx, cy, sunSize * 3.4);
-      glow.addColorStop(0, `rgba(${sys.sun},${alpha * 0.5})`);
-      glow.addColorStop(0.45, `rgba(${sys.sun},${alpha * 0.16})`);
-      glow.addColorStop(1, `rgba(${sys.sun},0)`);
-      context.fillStyle = glow;
-      context.beginPath();
-      context.arc(cx, cy, sunSize * 3.4, 0, Math.PI * 2);
-      context.fill();
-
-      context.fillStyle = `rgba(255,247,236,${Math.min(1, alpha * 1.15)})`;
-      context.beginPath();
-      context.arc(cx, cy, sunSize * 0.75, 0, Math.PI * 2);
-      context.fill();
-
-      sys.planets.forEach((p) => {
-        const a = spin * p.rate + p.phase;
-        const px = cx + Math.cos(a) * p.orbit;
-        const py = cy + Math.sin(a) * p.orbit * 0.45;
-        context.fillStyle = `rgba(${p.color},${alpha})`;
-        context.beginPath();
-        context.arc(px, py, p.size * (0.85 + sys.z * 0.9), 0, Math.PI * 2);
-        context.fill();
-      });
-    });
-  }
-
-  function draw(time) {
-    context.clearRect(0, 0, width, height);
-    if (mode === "parallax") {
-      drawStars(time);
-    } else if (mode === "orbits") {
-      drawStars(time, 0.7, 0.8);
-      drawSystems(time);
-    }
   }
 
   function frame(time) {
@@ -187,16 +98,16 @@
   }
 
   function setTheme(theme) {
-    const next = MODE_FOR[theme] || null;
-    if (next === mode) return;
-    mode = next;
-    if (!mode) return stop();
+    const next = theme === THEME;
+    if (next === live) return;
+    live = next;
+    if (!live) return stop();
     resize();
     start();
   }
 
   addEventListener("resize", () => {
-    if (!mode) return;
+    if (!live) return;
     resize();
     if (still.matches) draw(0);
   });
@@ -206,9 +117,9 @@
   });
   addEventListener("scroll", () => {
     scroll.ty = scrollY;
-    if (mode && still.matches) draw(0);
+    if (live && still.matches) draw(0);
   }, { passive: true });
-  still.addEventListener("change", () => { if (mode) { stop(); start(); } });
+  still.addEventListener("change", () => { if (live) { stop(); start(); } });
   addEventListener("cc:theme", (e) => setTheme(e.detail));
 
   resize();
